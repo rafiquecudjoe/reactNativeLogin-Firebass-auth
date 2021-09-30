@@ -1,4 +1,4 @@
-import React from "react";
+import React, { Component } from "react";
 import {
   View,
   Text,
@@ -6,35 +6,99 @@ import {
   TextInput,
   TouchableOpacity,
 } from "react-native";
+import { connect } from "react-redux";
+import { createEmailAccount,signUpError } from "../redux/actions/authActions";
 
-function Signup() {
-  return (
-    <View style={styles.signupmain}>
-      <Text style={styles.headertext}>Heloo..!</Text>
-      <View style={styles.input}>
-        <TextInput style={styles.user} placeholder="John" />
-        <TextInput style={styles.pass} placeholder="John" />
-        <TextInput style={styles.email} placeholder="John" />
-        <View style={styles.pnumber}>
-          <TextInput style={styles.phone} placeholder="John" />
-          <TextInput style={styles.phone2} placeholder="John" />
+class Signup extends Component {
+  constructor(props) {
+    super(props);
+    this.state = {
+      email: "",
+      password: "",
+      cpassword: "",
+      phone: "",
+      country: "",
+    };
+  }
+
+  handleUpdateState = (name, value) => {
+    console.log("Heloooo")
+    this.setState({ [name]: value });
+  };
+
+  handleONSubmit = () => {
+    if (this.state.password !== this.state.cpassword) {
+
+      this.props.signUpError("Password Do Not match")
+      return;
+      
+    }
+    
+    this.props.createEmailAccount(this.state.email,this.state.password)
+   };
+   
+
+  render() {
+    const { navigation,auth } = this.props;
+
+    return (
+      <View style={styles.signupmain}>
+        <Text style={styles.headertext}>Heloo..!</Text>
+        <View style={styles.input}>
+          { auth.error.signup &&
+            <Text style={{ color: 'red' }}>{auth.error.signup }</Text>
+          }
+          <TextInput
+            style={styles.user}
+            placeholder="EMail"
+            value={this.state}
+            onChange={(text) => this.handleUpdateState("email", text)}
+          />
+          <TextInput
+            style={styles.pass}
+            placeholder="Password"
+            secureTextEntry={true}
+            onChange={(text) => this.handleUpdateState("password", text)}
+          />
+          <TextInput
+            style={styles.email}
+            placeholder="Confirm password"
+            onChange={(text) => this.handleUpdateState("cpassword", text)}
+            secureTextEntry={true}
+          />
+          <View style={styles.pnumber}>
+            <TextInput style={styles.phone} placeholder="+233" />
+            <TextInput
+              style={styles.phone2}
+              placeholder="Phone"
+              value={this.state}
+              onChange={(text) => this.handleUpdateState("phone", text)}
+            />
+          </View>
+
+          <TextInput
+            style={styles.center}
+            placeholder="Country"
+            value={this.state}
+            onChange={(text) => this.handleUpdateState("country", text)}
+          />
+        </View>
+        <View style={styles.button}>
+          <TouchableOpacity  onPress={()=>console.log('Heloooo')}>
+            <Text style={styles.buttontxt}>Signup</Text>
+          </TouchableOpacity>
+        </View>
+        <View style={styles.footer}>
+          <Text style={styles.already}>Already have Account ?</Text>
+          <TouchableOpacity>
+            <Text style={styles.login}> Login</Text>
+          </TouchableOpacity>
         </View>
 
-        <TextInput style={styles.center} placeholder="John" />
+        <Text style={styles.footericon}></Text>
       </View>
-      <View style={styles.button}>
-        <TouchableOpacity>
-          <Text style={styles.buttontxt}>Signup</Text>
-        </TouchableOpacity>
-      </View>
-      <View style={styles.footer}>
-        <Text style={styles.already}>Already have Account ?</Text>
-        <Text style={styles.login}> Login</Text>
-      </View>
-
-      <Text style={styles.footericon}></Text>
-    </View>
-  );
+    );
+  }
 }
 
 const styles = StyleSheet.create({
@@ -86,6 +150,7 @@ const styles = StyleSheet.create({
     paddingLeft: 20,
     width: 80,
     marginRight: -20,
+    zIndex: 10,
   },
   phone2: {
     marginVertical: 10,
@@ -93,7 +158,7 @@ const styles = StyleSheet.create({
     borderRadius: 20,
     height: 50,
     color: "white",
-    paddingLeft: 20,
+    paddingLeft: 25,
     width: 273,
   },
   pnumber: {
@@ -144,4 +209,9 @@ const styles = StyleSheet.create({
   },
 });
 
-export default Signup;
+
+const mapStateToProps = (state) => {
+  return{auth:state}
+}
+
+export default connect(mapStateToProps, { createEmailAccount,signUpError })(Signup);
